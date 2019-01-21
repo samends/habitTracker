@@ -3,3 +3,6 @@ node_modules
 
 # Ignore compiled code
 dist
+
+# Ignore .env file
+.env
