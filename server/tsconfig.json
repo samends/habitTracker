@@ -20,7 +20,4 @@
   "exclude": [
      "node_modules"
   ],
-  "rules": {
-    "no-console": [false]
-  }
 }
