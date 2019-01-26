@@ -1,16 +1,29 @@
 import {config} from 'dotenv';
-import {Client} from 'pg';
 
 config();
-const client = new Client();
 
-const main = async () => {
-    await client.connect();
+import 'reflect-metadata';
+import {createConnection} from 'typeorm';
+import {Habits, Users} from './entity';
 
-    client.query('SELECT NOW()', (err, res) => {
-        console.log(err, res);
-        client.end();
-    });
-};
+createConnection({
+    type: 'postgres',
+    host: process.env.PGHOST,
+    port: Number(process.env.PGPORT),
+    username: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    database: process.env.habit_tracker,
+    entities: [
+        Habits,
+        Users,
+    ],
+    synchronize: true,
+    logging: false,
+}).then(async (connection) => {
+   console.log('You have made a connection');
+   const usersRepository = connection.getRepository(Users);
+   const users = await usersRepository.find();
 
-main();
+   console.log('All users in db', users);
+
+}).catch((error) => console.log(error));
