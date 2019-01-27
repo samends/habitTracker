@@ -1,5 +1,4 @@
-export class Habit {
-    id: string;
+export default class HabitModel {
     userid: string;
     created: Date;
     target: number;

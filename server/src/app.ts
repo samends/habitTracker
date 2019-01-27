@@ -1,16 +1,20 @@
 import {config} from 'dotenv';
+import {UserService} from './api/user.service';
 
 config();
 
-import {Connection} from './connection/connection';
-import {Habits, Users} from './entity';
+const app = async () => {
+   const newUser = {
+      name: 'Herold',
+      username: 'heroldG',
+      password: 'somePassword',
+   };
 
-const connection = new Connection();
+   const userService = new UserService();
 
-connection.run(async (db) => {
-   console.log('You have made a connection');
-   const usersRepository = db.getRepository(Users);
-   const users = await usersRepository.find();
+   const returnedUser = await userService.create(newUser);
 
-   console.log('All users in db hello', users);
-});
+   console.log('returned user', returnedUser);
+};
+
+app();
