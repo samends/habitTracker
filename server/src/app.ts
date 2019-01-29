@@ -10,11 +10,15 @@ const app = async () => {
       password: 'somePassword',
    };
 
-   const userService = new UserService();
+   try {
+      const userService = new UserService();
 
-   const returnedUser = await userService.create(newUser);
+      const returnedUser = await userService.create(newUser);
 
-   console.log('returned user', returnedUser);
+      console.log('returned user', returnedUser);
+   } catch (e) {
+      console.log('New error', e.message);
+   }
 };
 
 app();
