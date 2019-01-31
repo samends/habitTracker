@@ -6,14 +6,14 @@ config();
 const app = async () => {
    const newUser = {
       name: 'Herold',
-      username: 'heroldG',
+      username: 'bobMiggin',
       password: 'somePassword',
    };
 
    try {
       const userService = new UserService();
 
-      const returnedUser = await userService.create(newUser);
+      const returnedUser = await userService.findByUsername('bobMiggin', 'somePassword');
 
       console.log('returned user', returnedUser);
    } catch (e) {
