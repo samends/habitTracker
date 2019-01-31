@@ -42,4 +42,21 @@ export class UserService {
              });
         });
     }
+
+    async updateUsername(userId: string, username: string): Promise<User> {
+        const connection = new Connection();
+
+        return new Promise((res, reject) => {
+            connection.run(async (db) => {
+                const user = await db.getRepository(Users)
+                    .createQueryBuilder()
+                    .update(Users)
+                    .set({username})
+                    .where('id = :id', {id: userId})
+                    .execute();
+                console.log('xxx', user);
+                res();
+             });
+        });
+    }
 }

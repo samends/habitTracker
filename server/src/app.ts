@@ -13,7 +13,7 @@ const app = async () => {
    try {
       const userService = new UserService();
 
-      const returnedUser = await userService.findByUsername('bobMiggin', 'somePassword');
+      const returnedUser = await userService.updateUsername('c3c82a23-f863-4912-a9d5-62e6e46d5b9d', 'bobMitten');
 
       console.log('returned user', returnedUser);
    } catch (e) {
