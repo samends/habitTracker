@@ -1,5 +1,4 @@
-export default class UserModel {
-    name: string;
+export default interface UserModel {
     username: string;
     password: string;
 }

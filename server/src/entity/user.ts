@@ -6,9 +6,6 @@ export class Users {
     id: string;
 
     @Column('text')
-    name: string;
-
-    @Column('text')
     username: string;
 
     @Column('text')

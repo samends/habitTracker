@@ -1,4 +1,4 @@
-export default class HabitModel {
+export default interface HabitModel {
     userid: string;
     created: Date;
     target: number;

@@ -3,9 +3,10 @@ import {Users} from '../entity';
 import User from '../models/user';
 import {genHash} from '../utils';
 import {compareSync} from 'bcrypt';
+import UserModel from '../models/user';
 
 export class UserService {
-    async create(u: User): Promise<User> {
+    async create(u: UserModel): Promise<User> {
         const connection = new Connection();
 
         return new Promise((res, reject) => {
@@ -16,7 +17,6 @@ export class UserService {
                     return reject(new Error('Username already taken'));
                 }
                 const user = new Users();
-                user.name = u.name;
                 user.username = u.username;
                 user.password = await genHash(u.password);
 
@@ -64,9 +64,8 @@ export class UserService {
 
         return new Promise((res, reject) => {
             connection.run(async (db) => {
-                const users = await db.getRepository(Users).find({id: userId});
-                if (users.length > 0) {
-                    if (compareSync(password, users[0].password)) {
+                try {
+                    this.vailidatePassword(db, userId, password, async (user) => {
                         const hashedPass = await genHash(newPassword);
                         await db.getRepository(Users)
                         .createQueryBuilder()
@@ -75,12 +74,10 @@ export class UserService {
                         .where('id = :id', {id: userId})
                         .execute();
 
-                        res();
-                    } else {
-                        reject(new Error('Wrong password, try again'));
-                    }
-                } else {
-                    reject(new Error('User not found'));
+                        res(user);
+                    });
+                } catch (error) {
+                    reject(error);
                 }
              });
         });
@@ -108,7 +105,7 @@ export class UserService {
         });
     }
 
-    private vailidatePassword = async (db, userId, password, callback: (user: User) => void) => {
+    private vailidatePassword = async (db, userId: string, password: string, callback: (user: User) => void) => {
         const users = await db.getRepository(Users).find({id: userId});
         if (users.length > 0) {
             if (compareSync(password, users[0].password)) {
