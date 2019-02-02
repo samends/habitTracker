@@ -85,4 +85,39 @@ export class UserService {
              });
         });
     }
+
+    async deleteUser(userId: string, password: string): Promise<User> {
+        const connection = new Connection();
+
+        return new Promise((res, reject) => {
+            connection.run(async (db) => {
+                try {
+                    this.vailidatePassword(db, userId, password, async (user) => {
+                        await db.getRepository(Users)
+                            .createQueryBuilder()
+                            .delete()
+                            .from(Users)
+                            .where('id = :id', {id: userId})
+                            .execute();
+                        res(user);
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+             });
+        });
+    }
+
+    private vailidatePassword = async (db, userId, password, callback: (user: User) => void) => {
+        const users = await db.getRepository(Users).find({id: userId});
+        if (users.length > 0) {
+            if (compareSync(password, users[0].password)) {
+                callback(users[0]);
+            } else {
+                throw new Error('Wrong password, try again');
+            }
+        } else {
+            throw new Error('User not found');
+        }
+    }
 }
