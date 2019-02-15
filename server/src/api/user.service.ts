@@ -1,10 +1,10 @@
-import {Connection} from '../connection/connection';
-import {Users} from '../entity';
+import { Connection } from '../connection/connection';
+import { Users } from '../entity';
 import User from '../models/user';
-import {genHash} from '../utils';
-import {compareSync} from 'bcrypt';
+import { genHash } from '../utils';
+import { compareSync } from 'bcrypt';
 import UserModel from '../models/user';
-import {inject, injectable} from 'inversify';
+import { inject, injectable } from 'inversify';
 import TYPES from '../types';
 import 'reflect-metadata';
 
@@ -17,7 +17,7 @@ export class UserService {
         return new Promise((res, reject) => {
             this.connection.run(async (db) => {
                 const userRepository = db.getRepository(Users);
-                const takenUsers: Users[] = await userRepository.find({username: u.username});
+                const takenUsers: Users[] = await userRepository.find({ username: u.username });
                 if (takenUsers.length !== 0) {
                     return reject(new Error('Username already taken'));
                 }
@@ -28,7 +28,7 @@ export class UserService {
                 await db.manager.save(user);
 
                 return res(u);
-             });
+            });
         });
     }
 
@@ -37,13 +37,13 @@ export class UserService {
         return new Promise((res, reject) => {
             this.connection.run(async (db) => {
                 const userRepository = db.getRepository(Users);
-                const user = await userRepository.find({username});
+                const user = await userRepository.find({ username });
                 if (compareSync(password, user[0].password)) {
                     res(user[0]);
                 } else {
                     reject(new Error('Wrong password, try again'));
                 }
-             });
+            });
         });
     }
 
@@ -54,68 +54,78 @@ export class UserService {
                 const user = await db.getRepository(Users)
                     .createQueryBuilder()
                     .update(Users)
-                    .set({username})
-                    .where('id = :id', {id: userId})
+                    .set({ username })
+                    .where('id = :id', { id: userId })
                     .execute();
-                res();
-             });
+                res(user);
+            });
         });
     }
 
-    async updatePassword(userId: string, password: string, newPassword: string): Promise<User> {
+    async updatePassword(userId: string, newPassword: string): Promise<User> {
 
         return new Promise((res, reject) => {
             this.connection.run(async (db) => {
                 try {
-                    this.vailidatePassword(db, userId, password, async (user) => {
-                        const hashedPass = await genHash(newPassword);
-                        await db.getRepository(Users)
+                    const users = await db.getRepository(Users).find({ id: userId });
+
+                    const hashedPass = await genHash(newPassword);
+                    await db.getRepository(Users)
                         .createQueryBuilder()
                         .update(Users)
-                        .set({password: hashedPass})
-                        .where('id = :id', {id: userId})
+                        .set({ password: hashedPass })
+                        .where('id = :id', { id: userId })
                         .execute();
 
-                        res(user);
-                    });
+                    res(users[0]);
                 } catch (error) {
                     reject(error);
                 }
-             });
+            });
         });
     }
 
-    async deleteUser(userId: string, password: string): Promise<User> {
+    async deleteUser(userId: string): Promise<User> {
 
         return new Promise((res, reject) => {
-            this.connection.run(async (db) => {
-                try {
-                    this.vailidatePassword(db, userId, password, async (user) => {
+                this.connection.run(async (db) => {
+                    try {
+                        const users = await db.getRepository(Users).find({ id: userId });
+
                         await db.getRepository(Users)
                             .createQueryBuilder()
                             .delete()
                             .from(Users)
-                            .where('id = :id', {id: userId})
+                            .where('id = :id', { id: userId })
                             .execute();
-                        res(user);
-                    });
-                } catch (error) {
-                    reject(error);
-                }
-             });
+
+                        res(users[0]);
+                    } catch (error) {
+                        reject('error was thrown');
+                    }
+                });
         });
     }
 
-    private vailidatePassword = async (db, userId: string, password: string, callback: (user: User) => void) => {
-        const users = await db.getRepository(Users).find({id: userId});
-        if (users.length > 0) {
-            if (compareSync(password, users[0].password)) {
-                callback(users[0]);
-            } else {
-                throw new Error('Wrong password, try again');
-            }
-        } else {
-            throw new Error('User not found');
-        }
+    async vailidatePassword(userId: string, password: string) {
+
+        return new Promise((res, reject) => {
+                this.connection.run(async (db) => {
+                    try {
+                        const users = await db.getRepository(Users).find({ id: userId });
+                        if (users.length > 0) {
+                            if (compareSync(password, users[0].password)) {
+                                res(users[0]);
+                            } else {
+                                reject('Wrong password, try again');
+                            }
+                        } else {
+                            reject('User not found');
+                        }
+                    } catch (error) {
+                        reject('error was thrown');
+                    }
+                });
+        });
     }
 }
