@@ -4,13 +4,18 @@ import User from '../models/user';
 import {genHash} from '../utils';
 import {compareSync} from 'bcrypt';
 import UserModel from '../models/user';
+import {inject, injectable} from 'inversify';
+import TYPES from '../types';
+import 'reflect-metadata';
 
+@injectable()
 export class UserService {
+    @inject(TYPES.Connection) private connection: Connection;
+
     async create(u: UserModel): Promise<User> {
-        const connection = new Connection();
 
         return new Promise((res, reject) => {
-            connection.run(async (db) => {
+            this.connection.run(async (db) => {
                 const userRepository = db.getRepository(Users);
                 const takenUsers: Users[] = await userRepository.find({username: u.username});
                 if (takenUsers.length !== 0) {
@@ -28,10 +33,9 @@ export class UserService {
     }
 
     async findByUsername(username: string, password: string): Promise<User> {
-        const connection = new Connection();
 
         return new Promise((res, reject) => {
-            connection.run(async (db) => {
+            this.connection.run(async (db) => {
                 const userRepository = db.getRepository(Users);
                 const user = await userRepository.find({username});
                 if (compareSync(password, user[0].password)) {
@@ -44,10 +48,9 @@ export class UserService {
     }
 
     async updateUsername(userId: string, username: string): Promise<User> {
-        const connection = new Connection();
 
         return new Promise((res, reject) => {
-            connection.run(async (db) => {
+            this.connection.run(async (db) => {
                 const user = await db.getRepository(Users)
                     .createQueryBuilder()
                     .update(Users)
@@ -60,10 +63,9 @@ export class UserService {
     }
 
     async updatePassword(userId: string, password: string, newPassword: string): Promise<User> {
-        const connection = new Connection();
 
         return new Promise((res, reject) => {
-            connection.run(async (db) => {
+            this.connection.run(async (db) => {
                 try {
                     this.vailidatePassword(db, userId, password, async (user) => {
                         const hashedPass = await genHash(newPassword);
@@ -84,10 +86,9 @@ export class UserService {
     }
 
     async deleteUser(userId: string, password: string): Promise<User> {
-        const connection = new Connection();
 
         return new Promise((res, reject) => {
-            connection.run(async (db) => {
+            this.connection.run(async (db) => {
                 try {
                     this.vailidatePassword(db, userId, password, async (user) => {
                         await db.getRepository(Users)

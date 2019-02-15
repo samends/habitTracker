@@ -1,7 +1,10 @@
 import 'reflect-metadata';
 import {createConnection} from 'typeorm';
 import {Habits, Users} from '../entity';
+import {injectable} from 'inversify';
+import 'reflect-metadata';
 
+@injectable()
 export class Connection {
     run(callback: (connection) => void) {
         createConnection({

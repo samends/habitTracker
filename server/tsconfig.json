@@ -5,7 +5,9 @@
      "outDir": "dist",
      "sourceMap": false,
      "declaration": true,
+     "moduleResolution": "node",
      "experimentalDecorators": true,
+     "emitDecoratorMetadata": true,
      "lib": [
        "es2017.object",
        "es2015",
