@@ -334,46 +334,46 @@ describe('userService', () => {
         });
         it('should call find', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then(() => {
+                userService.delete('12345').then(() => {
                     expect(mockRepository.find).toHaveBeenCalledWith({id: '12345'});
                 });
         });
         it('should call create query builder', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then(() => {
+                userService.delete('12345').then(() => {
                     expect(mockRepository.createQueryBuilder).toHaveBeenCalled();
                 });
         });
         it('should call delete', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then(() => {
+                userService.delete('12345').then(() => {
                     expect(mockRepository.createQueryBuilder().delete).toHaveBeenCalled();
                 });
         });
         it('should call from', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then(() => {
+                userService.delete('12345').then(() => {
                     expect(mockRepository.createQueryBuilder().delete().from)
                         .toHaveBeenCalledWith(Users);
                 });
         });
         it('should call where', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then(() => {
+                userService.delete('12345').then(() => {
                     expect(mockRepository.createQueryBuilder().delete().from().where)
                         .toHaveBeenCalledWith('id = :id', {id: '12345'});
                 });
         });
         it('should call execute', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then(() => {
+                userService.delete('12345').then(() => {
                     expect(mockRepository.createQueryBuilder().delete().from().where().execute)
                         .toHaveBeenCalled();
                 });
         });
         it('should return the correct value', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').then((res) => {
+                userService.delete('12345').then((res) => {
                     expect(res).toEqual(dbUser);
                 });
         });
@@ -400,9 +400,36 @@ describe('userService', () => {
         });
         it('should call create query builder', () => {
             userService = new UserService(mockConnection, hashService),
-                userService.deleteUser('12345').catch((error) => {
+                userService.delete('12345').catch((error) => {
                     expect(error).toEqual(new Error('test error'));
                 });
         });
     });
+
+    // describe('validating password', () => {
+    //     describe('and user exists', () => {
+    //         const mockUser = new Users();
+    //         beforeEach(() => {
+    //             mockRepository = {
+    //                 find: jasmine.createSpy().and.returnValue([dbUser]),
+    //             };
+    //             mockDb = {
+    //                 manager: jasmine.createSpyObj('manager', ['save']),
+    //                 getRepository: (...params) => {
+    //                     return mockRepository;
+    //                 },
+    //             };
+    //             mockConnection = new MockConnection(mockDb);
+    //             mockUser.username = user.username;
+    //             mockUser.password = hash;
+    //         });
+    //         it('should call find', () => {
+    //             userService = new UserService(mockConnection, hashService),
+    //                 userService.validatePassword('12345', '').then(() => {
+    //                     expect(mockRepository.find).toHaveBeenCalledWith({id: '12345'});
+    //                 });
+    //         });
+    //     });
+    // });
+
 });

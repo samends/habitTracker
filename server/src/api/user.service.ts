@@ -98,7 +98,7 @@ export class UserService {
         });
     }
 
-    async deleteUser(userId: string): Promise<User> {
+    async delete(userId: string): Promise<User> {
 
         return new Promise((res, reject) => {
                 this.connection.run(async (db) => {
@@ -130,10 +130,10 @@ export class UserService {
                             if (compareSync(password, users[0].password)) {
                                 res(users[0]);
                             } else {
-                                reject('Wrong password, try again');
+                                reject(new Error('Wrong password, try again'));
                             }
                         } else {
-                            reject('User not found');
+                            reject(new Error('User not found'));
                         }
                     } catch (error) {
                         reject(error);
