@@ -378,4 +378,31 @@ describe('userService', () => {
                 });
         });
     });
+
+    describe('deleting user throws an error', () => {
+        const mockUser = new Users();
+        beforeEach(() => {
+            mockRepository = {
+                find: jasmine.createSpy().and.returnValue([dbUser]),
+                createQueryBuilder: () => {
+                    throw new Error('test error');
+                },
+            };
+            mockDb = {
+                manager: jasmine.createSpyObj('manager', ['save']),
+                getRepository: (...params) => {
+                    return mockRepository;
+                },
+            };
+            mockConnection = new MockConnection(mockDb);
+            mockUser.username = user.username;
+            mockUser.password = hash;
+        });
+        it('should call create query builder', () => {
+            userService = new UserService(mockConnection, hashService),
+                userService.deleteUser('12345').catch((error) => {
+                    expect(error).toEqual(new Error('test error'));
+                });
+        });
+    });
 });
