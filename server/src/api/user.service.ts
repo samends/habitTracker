@@ -47,7 +47,7 @@ export class UserService {
                 this.connection.run(async (db) => {
                     const userRepository = db.getRepository(Users);
                     const users = await userRepository.find({ username });
-                    users.length > 0 ? res(users[0]) : reject('User not found');
+                    users.length > 0 ? res(users[0]) : reject(new Error('User not found'));
                 });
             } catch (error) {
                 reject(error);

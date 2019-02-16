@@ -60,4 +60,55 @@ describe('userService', () => {
             });
         });
     });
+
+    describe('finding a user by username', () => {
+        describe('and user exists', () => {
+            const mockUser = new Users();
+            beforeEach(() => {
+                mockRepository = {
+                    find: jasmine.createSpy().and.returnValue([dbUser]),
+                };
+                mockDb = {
+                    manager: jasmine.createSpyObj('manager', ['save']),
+                    getRepository: (...params) => {
+                        return mockRepository;
+                    },
+                };
+                mockConnection = new MockConnection(mockDb);
+                mockUser.username = user.username;
+                mockUser.password = hash;
+            }),
+            it('should find user in db', () => {
+                userService = new UserService(mockConnection, hashService),
+                userService.findByUsername('merp').then((res) => {
+                    expect(mockRepository.find).toHaveBeenCalledWith({username: 'merp'});
+                    expect(res).toEqual(dbUser);
+                });
+            });
+        });
+        describe('and user does not exists', () => {
+            const mockUser = new Users();
+            beforeEach(() => {
+                mockRepository = {
+                    find: jasmine.createSpy().and.returnValue([]),
+                };
+                mockDb = {
+                    manager: jasmine.createSpyObj('manager', ['save']),
+                    getRepository: (...params) => {
+                        return mockRepository;
+                    },
+                };
+                mockConnection = new MockConnection(mockDb);
+                mockUser.username = user.username;
+                mockUser.password = hash;
+            }),
+            it('should throw an error', () => {
+                userService = new UserService(mockConnection, hashService),
+                userService.findByUsername('merp').catch((error) => {
+                    expect(mockRepository.find).toHaveBeenCalledWith({username: 'merp'});
+                    expect(error).toEqual(new Error('User not found'));
+                });
+            });
+        });
+    });
 });
