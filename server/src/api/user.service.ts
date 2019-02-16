@@ -1,7 +1,6 @@
 import {ConnectionService} from '../services/connection.service';
 import {Users} from '../entity';
 import User from '../models/user';
-import {compareSync} from 'bcrypt';
 import UserModel from '../models/user';
 import {inject, injectable} from 'inversify';
 import TYPES from '../types';
@@ -127,7 +126,7 @@ export class UserService {
                     try {
                         const users = await db.getRepository(Users).find({ id: userId });
                         if (users.length > 0) {
-                            if (compareSync(password, users[0].password)) {
+                            if (this.hashService.compare(password, users[0].password)) {
                                 res(users[0]);
                             } else {
                                 reject(new Error('Wrong password, try again'));

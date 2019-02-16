@@ -1,4 +1,4 @@
-import {genSalt, hash} from 'bcrypt';
+import {genSalt, hash, compareSync} from 'bcrypt';
 import {injectable} from 'inversify';
 
 @injectable()
@@ -13,5 +13,9 @@ export class HashService {
             });
         });
         return hashedPassword as string;
+    }
+
+    compare(a, b): boolean {
+        return compareSync(a, b);
     }
 }

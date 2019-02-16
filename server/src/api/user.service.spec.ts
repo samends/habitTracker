@@ -11,6 +11,7 @@ describe('userService', () => {
     const hash = 'testHash';
     const hashService = {
         genHash: jasmine.createSpy().and.returnValue(hash),
+        compare: (a, b) => true,
     };
     describe('when a user is being created', () => {
         describe('and user has not already been created', () => {
@@ -406,30 +407,81 @@ describe('userService', () => {
         });
     });
 
-    // describe('validating password', () => {
-    //     describe('and user exists', () => {
-    //         const mockUser = new Users();
-    //         beforeEach(() => {
-    //             mockRepository = {
-    //                 find: jasmine.createSpy().and.returnValue([dbUser]),
-    //             };
-    //             mockDb = {
-    //                 manager: jasmine.createSpyObj('manager', ['save']),
-    //                 getRepository: (...params) => {
-    //                     return mockRepository;
-    //                 },
-    //             };
-    //             mockConnection = new MockConnection(mockDb);
-    //             mockUser.username = user.username;
-    //             mockUser.password = hash;
-    //         });
-    //         it('should call find', () => {
-    //             userService = new UserService(mockConnection, hashService),
-    //                 userService.validatePassword('12345', '').then(() => {
-    //                     expect(mockRepository.find).toHaveBeenCalledWith({id: '12345'});
-    //                 });
-    //         });
-    //     });
-    // });
+    describe('validating password', () => {
+        describe('and user exists', () => {
+            describe('and password is valid', () => {
+                const mockUser = new Users();
+                beforeEach(() => {
+                    spyOn(hashService, 'compare').and.returnValue(true);
+                    mockRepository = {
+                        find: jasmine.createSpy().and.returnValue([dbUser]),
+                    };
+                    mockDb = {
+                        manager: jasmine.createSpyObj('manager', ['save']),
+                        getRepository: (...params) => {
+                            return mockRepository;
+                        },
+                    };
+                    mockConnection = new MockConnection(mockDb);
+                    mockUser.username = user.username;
+                    mockUser.password = hash;
+                });
+                it('should call find', () => {
+                    userService = new UserService(mockConnection, hashService),
+                        userService.validatePassword('18900', '12345').then((res) => {
+                            expect(res).toEqual(dbUser);
+                        });
+                });
+            });
+            describe('and password is invalid', () => {
+                const mockUser = new Users();
+                beforeEach(() => {
+                    spyOn(hashService, 'compare').and.returnValue(false);
+                    mockRepository = {
+                        find: jasmine.createSpy().and.returnValue([dbUser]),
+                    };
+                    mockDb = {
+                        manager: jasmine.createSpyObj('manager', ['save']),
+                        getRepository: (...params) => {
+                            return mockRepository;
+                        },
+                    };
+                    mockConnection = new MockConnection(mockDb);
+                    mockUser.username = user.username;
+                    mockUser.password = hash;
+                });
+                it('should call find', () => {
+                    userService = new UserService(mockConnection, hashService),
+                        userService.validatePassword('18900', '12345').catch((error) => {
+                            expect(error).toEqual(new Error('Wrong password, try again'));
+                        });
+                });
+            });
+        });
+        describe('and user does not exists', () => {
+            const mockUser = new Users();
+            beforeEach(() => {
+                spyOn(hashService, 'compare').and.returnValue(true);
+                mockRepository = {
+                    find: jasmine.createSpy().and.returnValue([]),
+                };
+                mockDb = {
+                    manager: jasmine.createSpyObj('manager', ['save']),
+                    getRepository: (...params) => {
+                        return mockRepository;
+                    },
+                };
+                mockConnection = new MockConnection(mockDb);
+                mockUser.username = user.username;
+                mockUser.password = hash;
+            });
+            it('should call find', () => {
+                userService = new UserService(mockConnection, hashService),
+                    userService.validatePassword('18900', '12345').catch((error) => {
+                        expect(error).toEqual(new Error('User not found'));
+                    });
+            });
+        });
+    });
 
 });
