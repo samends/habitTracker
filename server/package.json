@@ -9,7 +9,7 @@
     "clean": "rimraf .dist",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "tsc": "tsc",
-    "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json **/*.spec.ts"
+    "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json"
   },
   "author": "Sam Menza",
   "license": "ISC",

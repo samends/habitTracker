@@ -1,16 +1,19 @@
-import { Connection } from '../connection/connection';
-import { Users } from '../entity';
+import {Connection} from '../connection/connection';
+import {Users} from '../entity';
 import User from '../models/user';
-import { genHash } from '../utils';
-import { compareSync } from 'bcrypt';
+import {compareSync} from 'bcrypt';
 import UserModel from '../models/user';
-import { inject, injectable } from 'inversify';
+import {inject, injectable} from 'inversify';
 import TYPES from '../types';
 import 'reflect-metadata';
+import {HashService} from '../services/hash.service';
 
 @injectable()
 export class UserService {
-    @inject(TYPES.Connection) private connection: Connection;
+    constructor(
+        @inject(TYPES.Connection) private connection: Connection,
+        @inject(TYPES.HashService) private hashService: HashService,
+    ) {}
 
     async create(user: UserModel): Promise<User> {
 
@@ -24,7 +27,7 @@ export class UserService {
                     }
                     const newUser = new Users();
                     newUser.username = user.username;
-                    newUser.password = await genHash(user.password);
+                    newUser.password = await this.hashService.genHash(user.password);
 
                     await db.manager.save(newUser);
 
@@ -77,7 +80,7 @@ export class UserService {
         return new Promise((res, reject) => {
             this.connection.run(async (db) => {
                 try {
-                    const hashedPass = await genHash(newPassword);
+                    const hashedPass = await this.hashService.genHash(newPassword);
                     await db.getRepository(Users)
                         .createQueryBuilder()
                         .update(Users)

@@ -9,11 +9,7 @@ config();
 const userService = container.resolve<UserService>(UserService);
 
 try {
-   const newUser = {
-      username: 'merp',
-      password: 'hellomoto',
-   };
-   userService.create(newUser).then((user) => {
+   userService.findByUsername('merp').then((user) => {
       console.log('success!', user);
    }).catch((error) => {
       console.log('there was an error', error);
