@@ -24,14 +24,15 @@ export class UserService {
                     const takenUsers: Users[] = await userRepository.find({ username: user.username });
                     if (takenUsers.length !== 0) {
                         reject(new Error('Username already taken'));
+                    } else {
+                        const newUser = new Users();
+                        newUser.username = user.username;
+                        newUser.password = await this.hashService.genHash(user.password);
+
+                        await db.manager.save(newUser);
+
+                        res(newUser);
                     }
-                    const newUser = new Users();
-                    newUser.username = user.username;
-                    newUser.password = await this.hashService.genHash(user.password);
-
-                    await db.manager.save(newUser);
-
-                    res(newUser);
                 } catch (error) {
                     reject(error);
                 }
