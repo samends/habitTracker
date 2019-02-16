@@ -8,12 +8,8 @@ config();
 
 const userService = container.resolve<UserService>(UserService);
 
-try {
-   userService.findByUsername('merp').then((user) => {
-      console.log('success!', user);
-   }).catch((error) => {
-      console.log('there was an error', error);
-   });
-} catch (error) {
+userService.create({username: 'merp', password: 'derp'}).then((user) => {
+   console.log('success!', user);
+}).catch((error) => {
    console.log('there was an error', error);
-}
+});

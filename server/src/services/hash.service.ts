@@ -1,5 +1,7 @@
 import {genSalt, hash} from 'bcrypt';
+import {injectable} from 'inversify';
 
+@injectable()
 export class HashService {
     async genHash(password): Promise<string> {
         const hashedPassword = await new Promise((resolve, reject) => {
