@@ -1,5 +1,5 @@
 const TYPES = {
-    Connection: Symbol('Connection'),
+    ConnectionService: Symbol('ConnectionService'),
     HashService: Symbol('HashService'),
 };
 

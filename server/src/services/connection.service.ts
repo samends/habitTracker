@@ -5,7 +5,7 @@ import {injectable} from 'inversify';
 import 'reflect-metadata';
 
 @injectable()
-export class Connection {
+export class ConnectionService {
     run(callback: (connection) => void) {
         createConnection({
             type: 'postgres',

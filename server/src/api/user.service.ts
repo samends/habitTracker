@@ -1,4 +1,4 @@
-import {Connection} from '../connection/connection';
+import {ConnectionService} from '../services/connection.service';
 import {Users} from '../entity';
 import User from '../models/user';
 import {compareSync} from 'bcrypt';
@@ -11,7 +11,7 @@ import {HashService} from '../services/hash.service';
 @injectable()
 export class UserService {
     constructor(
-        @inject(TYPES.Connection) private connection: Connection,
+        @inject(TYPES.ConnectionService) private connection: ConnectionService,
         @inject(TYPES.HashService) private hashService: HashService,
     ) {}
 

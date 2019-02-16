@@ -30,7 +30,7 @@ describe('userService', () => {
             beforeEach(() => {
                 mockUser.username = user.username;
                 mockUser.password = hash;
-            })
+            }),
             it('should save new user to db', () => {
                 userService = new UserService(mockConnection, hashService),
                 userService.create(user).then(() => {
