@@ -2,6 +2,7 @@ import {ConnectionService} from '../services/connection.service';
 import {Users} from '../entity';
 import User from '../models/user';
 import UserModel from '../models/user';
+import {userUpdate} from '../models';
 import {inject, injectable} from 'inversify';
 import TYPES from '../types';
 import 'reflect-metadata';
@@ -46,7 +47,7 @@ export class UserService {
                 this.connection.run(async (db) => {
                     const userRepository = db.getRepository(Users);
                     const users = await userRepository.find({ username });
-                    users.length > 0 ? res(users[0]) : reject(new Error('User not found'));
+                    res(users[0]);
                 });
             } catch (error) {
                 reject(error);
@@ -54,7 +55,7 @@ export class UserService {
         });
     }
 
-    async updateUsername(userId: string, username: string): Promise<User> {
+    async update(userId: string, update: {[field: string]: string}): Promise<User> {
 
         return new Promise((res, reject) => {
             this.connection.run(async (db) => {
@@ -62,31 +63,9 @@ export class UserService {
                     await db.getRepository(Users)
                     .createQueryBuilder()
                     .update(Users)
-                    .set({ username })
+                    .set(update)
                     .where('id = :id', { id: userId })
                     .execute();
-
-                    const users = await db.getRepository(Users).find({ id: userId });
-                    res(users[0]);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        });
-    }
-
-    async updatePassword(userId: string, newPassword: string): Promise<User> {
-
-        return new Promise((res, reject) => {
-            this.connection.run(async (db) => {
-                try {
-                    const hashedPass = await this.hashService.genHash(newPassword);
-                    await db.getRepository(Users)
-                        .createQueryBuilder()
-                        .update(Users)
-                        .set({ password: hashedPass })
-                        .where('id = :id', { id: userId })
-                        .execute();
 
                     const users = await db.getRepository(Users).find({ id: userId });
                     res(users[0]);
