@@ -2,7 +2,6 @@ import {ConnectionService} from '../services/connection.service';
 import {Users} from '../entity';
 import User from '../models/user';
 import UserModel from '../models/user';
-import {userUpdate} from '../models';
 import {inject, injectable} from 'inversify';
 import TYPES from '../types';
 import 'reflect-metadata';
