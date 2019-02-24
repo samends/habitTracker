@@ -1,12 +1,13 @@
 import 'reflect-metadata';
-import {createConnection} from 'typeorm';
+import {createConnection, getManager, getRepository} from 'typeorm';
 import {Habits, Users} from '../entity';
+import UserModel from '../models/user';
 import {injectable} from 'inversify';
 import 'reflect-metadata';
 
 @injectable()
 export class ConnectionService {
-    run(callback: (connection) => void) {
+    constructor() {
         createConnection({
             type: 'postgres',
             host: process.env.PGHOST,
@@ -20,8 +21,38 @@ export class ConnectionService {
             ],
             synchronize: true,
             logging: false,
-        }).then(async (connection) => {
-            callback(connection);
-        }).catch((error) => console.log(error));
+        });
+    }
+
+    async findUser(queryObject: {[key: string]: string}) {
+        return await getRepository(Users).find(queryObject);
+    }
+
+    async createUser(user: UserModel) {
+        await getManager().save(user);
+        return await getRepository(Users).find({username: user.username});
+    }
+
+    async updateUser(id: string, fieldUpdate: {[field: string]: string}): Promise<Users[]> {
+        await getRepository(Users)
+            .createQueryBuilder()
+            .update(Users)
+            .set(fieldUpdate)
+            .where('id = :id', { id })
+            .execute();
+
+        return await getRepository(Users).find({id})
+    }
+
+    async deleteUser(id: string): Promise<Users[]>  {
+        const deletedUser = await getRepository(Users).find({id});
+        await getRepository(Users)
+            .createQueryBuilder()
+            .delete()
+            .from(Users)
+            .where('id = :id', { id })
+            .execute();
+
+        return deletedUser;
     }
 }

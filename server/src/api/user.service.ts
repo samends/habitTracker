@@ -10,17 +10,15 @@ import {HashService} from '../services/hash.service';
 @injectable()
 export class UserService {
     constructor(
-        @inject(TYPES.ConnectionService) private connection: ConnectionService,
+        @inject(TYPES.ConnectionService) private connectionService: ConnectionService,
         @inject(TYPES.HashService) private hashService: HashService,
     ) {}
 
     async create(user: UserModel): Promise<User> {
 
-        return new Promise((res, reject) => {
-            this.connection.run(async (db) => {
+        return new Promise(async(res, reject) => {
                 try {
-                    const userRepository = db.getRepository(Users);
-                    const takenUsers: Users[] = await userRepository.find({ username: user.username });
+                    const takenUsers: Users[] = await this.connectionService.findUser({ username: user.username });
                     if (takenUsers.length !== 0) {
                         reject(new Error('Username already taken'));
                     } else {
@@ -28,81 +26,57 @@ export class UserService {
                         newUser.username = user.username;
                         newUser.password = await this.hashService.genHash(user.password);
 
-                        await db.manager.save(newUser);
-
-                        res(newUser);
+                        const ares = await this.connectionService.createUser(newUser);
+                        console.log('>>>', ares[0]);
+                        res(ares[0]);
                     }
                 } catch (error) {
                     reject(error);
                 }
-            });
         });
     }
 
     async findByUsername(username: string): Promise<User> {
 
-        return new Promise((res, reject) => {
+        return new Promise(async (res, reject) => {
             try {
-                this.connection.run(async (db) => {
-                    const userRepository = db.getRepository(Users);
-                    const users = await userRepository.find({ username });
-                    res(users[0]);
-                });
+                const users = await this.connectionService.findUser({ username });
+                res(users[0]);
             } catch (error) {
                 reject(error);
             }
         });
     }
 
-    async update(userId: string, update: {[field: string]: string}): Promise<User> {
+    async update(userId: string, fieldUpdate: {[field: string]: string}): Promise<User> {
 
-        return new Promise((res, reject) => {
-            this.connection.run(async (db) => {
+        return new Promise(async (res, reject) => {
                 try {
-                    await db.getRepository(Users)
-                    .createQueryBuilder()
-                    .update(Users)
-                    .set(update)
-                    .where('id = :id', { id: userId })
-                    .execute();
-
-                    const users = await db.getRepository(Users).find({ id: userId });
+                    const users = await this.connectionService.updateUser(userId, fieldUpdate);
                     res(users[0]);
                 } catch (error) {
                     reject(error);
                 }
-            });
         });
     }
 
     async delete(userId: string): Promise<User> {
 
         return new Promise((res, reject) => {
-                this.connection.run(async (db) => {
                     try {
-                        const users = await db.getRepository(Users).find({ id: userId });
-
-                        await db.getRepository(Users)
-                            .createQueryBuilder()
-                            .delete()
-                            .from(Users)
-                            .where('id = :id', { id: userId })
-                            .execute();
-
+                        const users = this.connectionService.deleteUser(userId);
                         res(users[0]);
                     } catch (error) {
                         reject(error);
                     }
-                });
         });
     }
 
     async validatePassword(userId: string, password: string) {
 
-        return new Promise((res, reject) => {
-                this.connection.run(async (db) => {
+        return new Promise(async (res, reject) => {
                     try {
-                        const users = await db.getRepository(Users).find({ id: userId });
+                        const users = await this.connectionService.findUser({id: userId});
                         if (users.length > 0) {
                             if (this.hashService.compare(password, users[0].password)) {
                                 res(users[0]);
@@ -115,7 +89,6 @@ export class UserService {
                     } catch (error) {
                         reject(error);
                     }
-                });
         });
     }
 }
