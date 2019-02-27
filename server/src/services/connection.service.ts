@@ -24,11 +24,11 @@ export class ConnectionService {
         });
     }
 
-    async findUser(queryObject: {[key: string]: string}) {
+    async findUser(queryObject: {[key: string]: string}): Promise<Users[]> {
         return await getRepository(Users).find(queryObject);
     }
 
-    async createUser(user: UserModel) {
+    async createUser(user: UserModel): Promise<Users[]> {
         await getManager().save(user);
         return await getRepository(Users).find({username: user.username});
     }

@@ -26,9 +26,8 @@ export class UserService {
                         newUser.username = user.username;
                         newUser.password = await this.hashService.genHash(user.password);
 
-                        const ares = await this.connectionService.createUser(newUser);
-                        console.log('>>>', ares[0]);
-                        res(ares[0]);
+                        const createdUser = await this.connectionService.createUser(newUser);
+                        res(createdUser[0]);
                     }
                 } catch (error) {
                     reject(error);
