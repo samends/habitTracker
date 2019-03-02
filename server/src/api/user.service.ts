@@ -18,17 +18,12 @@ export class UserService {
 
         return new Promise(async(res, reject) => {
                 try {
-                    const takenUsers: Users[] = await this.connectionService.findUser({ username: user.username });
-                    if (takenUsers.length !== 0) {
-                        reject(new Error('Username already taken'));
-                    } else {
-                        const newUser = new Users();
-                        newUser.username = user.username;
-                        newUser.password = await this.hashService.genHash(user.password);
+                    const newUser = new Users();
+                    newUser.username = user.username;
+                    newUser.password = await this.hashService.genHash(user.password);
 
-                        const createdUser = await this.connectionService.createUser(newUser);
-                        res(createdUser[0]);
-                    }
+                    const createdUser = await this.connectionService.createUser(newUser);
+                    res(createdUser[0]);
                 } catch (error) {
                     reject(error);
                 }
@@ -40,7 +35,11 @@ export class UserService {
         return new Promise(async (res, reject) => {
             try {
                 const users = await this.connectionService.findUser({ username });
-                res(users[0]);
+                if (users.length > 0) {
+                    res(users[0]);
+                } else {
+                    reject(new Error('Username not found'));
+                }
             } catch (error) {
                 reject(error);
             }
