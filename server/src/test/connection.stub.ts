@@ -3,15 +3,15 @@ import {ConnectionService} from '../services/connection.service';
 
 export const connectionService: ConnectionService = {
     findUser(...params) {
-        return new Promise((res) => res([dbUser]));
+        return Promise.resolve([dbUser]);
     },
     createUser(...params) {
-        return new Promise((res) => res([dbUser]));
+        return Promise.resolve([dbUser]);
     },
     updateUser(...params) {
-        return new Promise((res) => res([dbUser]));
+        return Promise.resolve([dbUser]);
     },
     deleteUser(...params) {
-        return new Promise((res) => res([dbUser]));
+        return Promise.resolve([dbUser]);
     }
 };
