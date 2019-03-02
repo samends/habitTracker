@@ -126,6 +126,37 @@ describe('userService', () => {
             });
         });
 
+
+        describe('deleting a user', () => {
+            it('should find user in db', (done) => {
+                spyOn(connectionService, 'deleteUser').and.returnValue(Promise.resolve([dbUser]));
+                userService = new UserService(connectionService, hashService);
+                userService.delete('1234').then(() => {
+                    expect(connectionService.deleteUser).toHaveBeenCalledWith('1234');
+                    done();
+                });
+            });
+            it('should return the correct value', (done) => {
+                spyOn(connectionService, 'deleteUser').and.returnValue(Promise.resolve([dbUser]));
+                userService = new UserService(connectionService, hashService);
+                userService.delete('1234').then((res) => {
+                    expect(res).toBe(dbUser);
+                    done();
+                });
+            });
+            describe('and an error was thrown', () => {
+                it('should throw error', (done) => {
+                    spyOn(connectionService, 'deleteUser').and
+                        .returnValue(Promise.reject(new Error('Pandas are in the way')));
+                    userService = new UserService(connectionService, hashService);
+                    userService.delete('1234').catch((error) => {
+                        expect(error).toEqual(new Error('Pandas are in the way'));
+                        done();
+                    });
+                });
+            });
+        });
+
         // describe('updating a username throws an error', () => {
         //     const mockUser = new Users();
         //     beforeEach(() => {

@@ -60,30 +60,10 @@ export class UserService {
 
     async delete(userId: string): Promise<User> {
 
-        return new Promise((res, reject) => {
-                    try {
-                        const users = this.connectionService.deleteUser(userId);
-                        res(users[0]);
-                    } catch (error) {
-                        reject(error);
-                    }
-        });
-    }
-
-    async validatePassword(userId: string, password: string) {
-
         return new Promise(async (res, reject) => {
                     try {
-                        const users = await this.connectionService.findUser({id: userId});
-                        if (users.length > 0) {
-                            if (this.hashService.compare(password, users[0].password)) {
-                                res(users[0]);
-                            } else {
-                                reject(new Error('Wrong password, try again'));
-                            }
-                        } else {
-                            reject(new Error('User not found'));
-                        }
+                        const users = await this.connectionService.deleteUser(userId);
+                        res(users[0]);
                     } catch (error) {
                         reject(error);
                     }
