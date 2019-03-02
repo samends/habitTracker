@@ -126,7 +126,6 @@ describe('userService', () => {
             });
         });
 
-
         describe('validating user password', () => {
             it('should find user in db', (done) => {
                 spyOn(connectionService, 'deleteUser').and.returnValue(Promise.resolve([dbUser]));

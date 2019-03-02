@@ -41,7 +41,7 @@ export class ConnectionService {
             .where('id = :id', { id })
             .execute();
 
-        return await getRepository(Users).find({id})
+        return await getRepository(Users).find({id});
     }
 
     async deleteUser(id: string): Promise<Users[]>  {

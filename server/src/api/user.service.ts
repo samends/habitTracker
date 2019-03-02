@@ -1,36 +1,36 @@
-import {ConnectionService} from '../services/connection.service';
-import {Users} from '../entity';
+import { ConnectionService } from '../services/connection.service';
+import { Users } from '../entity';
 import User from '../models/user';
 import UserModel from '../models/user';
-import {inject, injectable} from 'inversify';
+import { inject, injectable } from 'inversify';
 import TYPES from '../types';
 import 'reflect-metadata';
-import {HashService} from '../services/hash.service';
+import { HashService } from '../services/hash.service';
 
 @injectable()
 export class UserService {
     constructor(
         @inject(TYPES.ConnectionService) private connectionService: ConnectionService,
         @inject(TYPES.HashService) private hashService: HashService,
-    ) {}
+    ) { }
 
     async create(user: UserModel): Promise<User> {
 
-        return new Promise(async(res, reject) => {
-                try {
-                    const newUser = new Users();
-                    newUser.username = user.username;
-                    newUser.password = await this.hashService.genHash(user.password);
+        return new Promise(async (res, reject) => {
+            try {
+                const newUser = new Users();
+                newUser.username = user.username;
+                newUser.password = await this.hashService.genHash(user.password);
 
-                    const createdUser = await this.connectionService.createUser(newUser);
-                    res(createdUser[0]);
-                } catch (error) {
-                    reject(error);
-                }
+                const createdUser = await this.connectionService.createUser(newUser);
+                res(createdUser[0]);
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
-    async find(query: {[field: string]: string}): Promise<User> {
+    async find(query: { [field: string]: string }): Promise<User> {
 
         return new Promise(async (res, reject) => {
             try {
@@ -46,27 +46,27 @@ export class UserService {
         });
     }
 
-    async update(userId: string, query: {[field: string]: string}): Promise<User> {
+    async update(userId: string, query: { [field: string]: string }): Promise<User> {
 
         return new Promise(async (res, reject) => {
-                try {
-                    const users = await this.connectionService.updateUser(userId, query);
-                    res(users[0]);
-                } catch (error) {
-                    reject(error);
-                }
+            try {
+                const users = await this.connectionService.updateUser(userId, query);
+                res(users[0]);
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
     async delete(userId: string): Promise<User> {
 
         return new Promise(async (res, reject) => {
-                    try {
-                        const users = await this.connectionService.deleteUser(userId);
-                        res(users[0]);
-                    } catch (error) {
-                        reject(error);
-                    }
+            try {
+                const users = await this.connectionService.deleteUser(userId);
+                res(users[0]);
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 }
