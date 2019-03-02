@@ -53,7 +53,7 @@ describe('userService', () => {
                     it('should find user in db', (done) => {
                         spyOn(connectionService, 'findUser').and.returnValue(Promise.resolve([dbUser]));
                         userService = new UserService(connectionService, hashService),
-                            userService.findByUsername('merp').then(() => {
+                            userService.find({ username: 'merp' }).then(() => {
                                 expect(connectionService.findUser).toHaveBeenCalledWith({ username: 'merp' });
                                 done();
                             });
@@ -61,7 +61,7 @@ describe('userService', () => {
                 it('should return the correct value', (done) => {
                     spyOn(connectionService, 'findUser').and.returnValue(Promise.resolve([dbUser]));
                     userService = new UserService(connectionService, hashService),
-                        userService.findByUsername('merp').then((res) => {
+                        userService.find({ username: 'merp' }).then((res) => {
                             expect(res).toEqual(dbUser);
                             done();
                         });
@@ -76,7 +76,7 @@ describe('userService', () => {
                     it('should throw error', (done) => {
                         spyOn(connectionService, 'findUser').and.returnValue(Promise.resolve([]));
                         userService = new UserService(connectionService, hashService),
-                            userService.findByUsername('merp').catch((error) => {
+                            userService.find({ username: 'merp' }).catch((error) => {
                                 expect(error).toEqual(new Error('Username not found'));
                                 done();
                             });
@@ -127,7 +127,7 @@ describe('userService', () => {
         });
 
 
-        describe('deleting a user', () => {
+        describe('validating user password', () => {
             it('should find user in db', (done) => {
                 spyOn(connectionService, 'deleteUser').and.returnValue(Promise.resolve([dbUser]));
                 userService = new UserService(connectionService, hashService);

@@ -30,11 +30,11 @@ export class UserService {
         });
     }
 
-    async findByUsername(username: string): Promise<User> {
+    async find(query: {[field: string]: string}): Promise<User> {
 
         return new Promise(async (res, reject) => {
             try {
-                const users = await this.connectionService.findUser({ username });
+                const users = await this.connectionService.findUser(query);
                 if (users.length > 0) {
                     res(users[0]);
                 } else {
@@ -46,11 +46,11 @@ export class UserService {
         });
     }
 
-    async update(userId: string, fieldUpdate: {[field: string]: string}): Promise<User> {
+    async update(userId: string, query: {[field: string]: string}): Promise<User> {
 
         return new Promise(async (res, reject) => {
                 try {
-                    const users = await this.connectionService.updateUser(userId, fieldUpdate);
+                    const users = await this.connectionService.updateUser(userId, query);
                     res(users[0]);
                 } catch (error) {
                     reject(error);
