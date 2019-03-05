@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import {createConnection, getManager, getRepository} from 'typeorm';
 import {Habits, Users} from '../entity';
-import UserModel from '../models/user';
+import { UserModel } from '../models/user';
 import {injectable} from 'inversify';
 import 'reflect-metadata';
 

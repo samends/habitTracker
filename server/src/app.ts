@@ -33,6 +33,9 @@ const schema = buildSchema(`
 
    type Query {
       hello: String,
+      testFind(field: String, value: String): User,
+      testUpdate(userId: String, field: String, value: String): User,
+      testDelete(userId: String): User
    }
 
    type Mutation {
@@ -49,6 +52,27 @@ const root = {
          console.log('There was an error', error);
       }
    },
+   testFind: async ({field, value}) => {
+      try {
+         return await userService.find({[field]: value});
+      } catch (error) {
+         console.log('There was an error', error);
+      }
+   },
+   testUpdate: async ({userId, field, value}) => {
+      try {
+         return await userService.update(userId, {[field]: value});
+      } catch (error) {
+         console.log('There was an error', error);
+      }
+   },
+   testDelete: async ({userId}) => {
+      try {
+         return await userService.delete(userId);
+      } catch (error) {
+         console.log('There was an error', error);
+      }
+   }
 };
 
 const app = express();

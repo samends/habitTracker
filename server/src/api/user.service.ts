@@ -1,7 +1,6 @@
 import { ConnectionService } from '../services/connection.service';
 import { Users } from '../entity';
-import User from '../models/user';
-import UserModel from '../models/user';
+import { UserModel } from '../models/user';
 import { inject, injectable } from 'inversify';
 import TYPES from '../types';
 import 'reflect-metadata';
@@ -14,7 +13,7 @@ export class UserService {
         @inject(TYPES.HashService) private hashService: HashService,
     ) { }
 
-    async create(user: UserModel): Promise<User> {
+    async create(user: UserModel): Promise<Users> {
 
         return new Promise(async (res, reject) => {
             try {
@@ -30,7 +29,7 @@ export class UserService {
         });
     }
 
-    async find(query: { [field: string]: string }): Promise<User> {
+    async find(query: { [field: string]: string }): Promise<Users> {
 
         return new Promise(async (res, reject) => {
             try {
@@ -46,7 +45,7 @@ export class UserService {
         });
     }
 
-    async update(userId: string, query: { [field: string]: string }): Promise<User> {
+    async update(userId: string, query: { [field: string]: string }): Promise<Users> {
 
         return new Promise(async (res, reject) => {
             try {
@@ -58,7 +57,7 @@ export class UserService {
         });
     }
 
-    async delete(userId: string): Promise<User> {
+    async delete(userId: string): Promise<Users> {
 
         return new Promise(async (res, reject) => {
             try {
