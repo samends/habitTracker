@@ -1,14 +1,17 @@
 import 'reflect-metadata';
-import {createConnection, getManager, getRepository} from 'typeorm';
 import {Habits, Users} from '../entity';
-import { UserModel } from '../models/user';
-import {injectable} from 'inversify';
+import {UserModel} from '../models/user';
+import {injectable, inject} from 'inversify';
+import TYPES from '../types';
+import {TypeOrmWrapper} from '../services/typeorm.service';
 import 'reflect-metadata';
 
 @injectable()
 export class ConnectionService {
-    constructor() {
-        createConnection({
+    constructor(
+        @inject(TYPES.TypeOrmWrapper) private typeOrmWrapper: TypeOrmWrapper,
+    ) {
+        this.typeOrmWrapper.createConnection({
             type: 'postgres',
             host: process.env.PGHOST,
             port: Number(process.env.PGPORT),
@@ -25,28 +28,28 @@ export class ConnectionService {
     }
 
     async findUser(queryObject: {[key: string]: string}): Promise<Users[]> {
-        return await getRepository(Users).find(queryObject);
+        return await this.typeOrmWrapper.getRepository(Users).find(queryObject);
     }
 
     async createUser(user: UserModel): Promise<Users[]> {
-        await getManager().save(user);
-        return await getRepository(Users).find({username: user.username});
+        await this.typeOrmWrapper.getManager().save(user);
+        return await this.typeOrmWrapper.getRepository(Users).find({username: user.username});
     }
 
     async updateUser(id: string, fieldUpdate: {[field: string]: string}): Promise<Users[]> {
-        await getRepository(Users)
+        await this.typeOrmWrapper.getRepository(Users)
             .createQueryBuilder()
             .update(Users)
             .set(fieldUpdate)
             .where('id = :id', { id })
             .execute();
 
-        return await getRepository(Users).find({id});
+        return await this.typeOrmWrapper.getRepository(Users).find({id});
     }
 
     async deleteUser(id: string): Promise<Users[]>  {
-        const deletedUser = await getRepository(Users).find({id});
-        await getRepository(Users)
+        const deletedUser = await this.typeOrmWrapper.getRepository(Users).find({id});
+        await this.typeOrmWrapper.getRepository(Users)
             .createQueryBuilder()
             .delete()
             .from(Users)
