@@ -1,3 +1,24 @@
+import {ConnectionService} from './connection.service';
+
+describe('ConnectionService', () => {
+    let connectionService: ConnectionService;
+    const typeOrmWrapper: any = {
+        createConnection: jasmine.createSpy(),
+        getManager: () => 'placeholder',
+        getRepository: () => 'placeholder'
+    };
+    describe('upon initialization', () => {
+        process.env.PGUSER = 'pinkCats';
+        connectionService = new ConnectionService(typeOrmWrapper);
+        it('creates database connection', () => {
+            expect(typeOrmWrapper.createConnection).toHaveBeenCalled();
+        });
+    });
+    // describe('when', () => {
+    //     describe('')
+    // })
+});
+
 // describe('updating a username', () => {
 //     const mockUser = new Users();
 //     beforeEach(() => {

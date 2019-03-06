@@ -11,6 +11,7 @@ export class ConnectionService {
     constructor(
         @inject(TYPES.TypeOrmWrapper) private typeOrmWrapper: TypeOrmWrapper,
     ) {
+        console.log('xxx', process.env.PGUSER);
         this.typeOrmWrapper.createConnection({
             type: 'postgres',
             host: process.env.PGHOST,
