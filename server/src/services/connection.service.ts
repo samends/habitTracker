@@ -3,7 +3,7 @@ import {Habits, Users} from '../entity';
 import {UserModel} from '../models/user';
 import {injectable, inject} from 'inversify';
 import TYPES from '../types';
-import {TypeOrmWrapper} from '../services/typeorm.service';
+import {TypeOrmWrapper} from './typeorm.wrapper';
 import 'reflect-metadata';
 
 @injectable()

@@ -1,7 +1,7 @@
 import {Container} from 'inversify';
 import {ConnectionService} from './services/connection.service';
 import {HashService} from './services/hash.service';
-import {TypeOrmWrapper} from './services/typeorm.service';
+import {TypeOrmWrapper} from './services/typeorm.wrapper';
 import TYPES from './types';
 
 const container = new Container();
