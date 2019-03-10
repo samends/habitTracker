@@ -1,22 +1,79 @@
-import {ConnectionService} from './connection.service';
+import { ConnectionService } from './connection.service';
+import { Habits, Users } from '../entity';
+import { dbUser, user } from '../test/fixtures';
 
 describe('ConnectionService', () => {
     let connectionService: ConnectionService;
     const typeOrmWrapper: any = {
         createConnection: jasmine.createSpy(),
-        getManager: () => 'placeholder',
-        getRepository: () => 'placeholder'
+        getManager: jasmine.createSpy().and.returnValue({
+            save: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+        }),
+        getRepository: jasmine.createSpy().and.returnValue({
+            find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+        })
     };
     describe('upon initialization', () => {
+        process.env.PGHOST = 'purpleCats';
         process.env.PGUSER = 'pinkCats';
+        process.env.PGPORT = '55';
+        process.env.PGPASSWORD = 'greenCats';
+        process.env.habit_tracker = 'redCats';
         connectionService = new ConnectionService(typeOrmWrapper);
-        it('creates database connection', () => {
-            expect(typeOrmWrapper.createConnection).toHaveBeenCalled();
+        it('creates database connection with correct params', () => {
+            expect(typeOrmWrapper.createConnection).toHaveBeenCalledWith({
+                type: 'postgres',
+                host: 'purpleCats',
+                port: 55,
+                username: 'pinkCats',
+                password: 'greenCats',
+                database: 'redCats',
+                entities: [
+                    Habits,
+                    Users
+                ],
+                synchronize: true,
+                logging: false,
+            });
         });
     });
-    // describe('when', () => {
-    //     describe('')
-    // })
+
+    describe('when', () => {
+        describe('finding a user by username', () => {
+            beforeEach(() => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+            });
+            it('calls database find method', () => {
+                connectionService.findUser({ username: 'fuzz' });
+                expect(typeOrmWrapper.getRepository().find).toHaveBeenCalledWith({ username: 'fuzz' });
+            });
+            it('returns correct user', (done) => {
+                connectionService.findUser({ username: 'fuzz' }).then((res) => {
+                    expect(res).toEqual([dbUser]);
+                    done();
+                });
+            });
+        });
+
+        describe('creating a user', () => {
+            beforeEach(() => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+            });
+            it('saves user to database', () => {
+                connectionService.createUser(user);
+                expect(typeOrmWrapper.getManager().save).toHaveBeenCalledWith(user);
+            });
+            it('finds created user', () => {
+                connectionService.createUser(user);
+                expect(typeOrmWrapper.getRepository().find).toHaveBeenCalledWith({ username: user.username });
+            });
+            it('returns the created user', () => {
+                connectionService.createUser(user).then((res) => {
+                    expect(res).toEqual([dbUser]);
+                });
+            });
+        });
+    });
 });
 
 // describe('updating a username', () => {
