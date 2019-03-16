@@ -4,22 +4,25 @@ import { dbUser, user } from '../test/fixtures';
 
 describe('ConnectionService', () => {
     let connectionService: ConnectionService;
-    const typeOrmWrapper: any = {
-        createConnection: jasmine.createSpy(),
-        getManager: jasmine.createSpy().and.returnValue({
-            save: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
-        }),
-        getRepository: jasmine.createSpy().and.returnValue({
-            find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
-        })
-    };
+    let typeOrmWrapper: any;
     describe('upon initialization', () => {
-        process.env.PGHOST = 'purpleCats';
-        process.env.PGUSER = 'pinkCats';
-        process.env.PGPORT = '55';
-        process.env.PGPASSWORD = 'greenCats';
-        process.env.habit_tracker = 'redCats';
-        connectionService = new ConnectionService(typeOrmWrapper);
+        beforeEach(() => {
+            typeOrmWrapper = {
+                createConnection: jasmine.createSpy(),
+                getManager: jasmine.createSpy().and.returnValue({
+                    save: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                }),
+                getRepository: jasmine.createSpy().and.returnValue({
+                    find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                })
+            };
+            process.env.PGHOST = 'purpleCats';
+            process.env.PGUSER = 'pinkCats';
+            process.env.PGPORT = '55';
+            process.env.PGPASSWORD = 'greenCats';
+            process.env.habit_tracker = 'redCats';
+            connectionService = new ConnectionService(typeOrmWrapper);
+        });
         it('creates database connection with correct params', () => {
             expect(typeOrmWrapper.createConnection).toHaveBeenCalledWith({
                 type: 'postgres',
@@ -41,6 +44,15 @@ describe('ConnectionService', () => {
     describe('when', () => {
         describe('finding a user by username', () => {
             beforeEach(() => {
+                typeOrmWrapper = {
+                    createConnection: jasmine.createSpy(),
+                    getManager: jasmine.createSpy().and.returnValue({
+                        save: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                    }),
+                    getRepository: jasmine.createSpy().and.returnValue({
+                        find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                    })
+                };
                 connectionService = new ConnectionService(typeOrmWrapper);
             });
             it('calls database find method', () => {
@@ -57,6 +69,15 @@ describe('ConnectionService', () => {
 
         describe('creating a user', () => {
             beforeEach(() => {
+                typeOrmWrapper = {
+                    createConnection: jasmine.createSpy(),
+                    getManager: jasmine.createSpy().and.returnValue({
+                        save: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                    }),
+                    getRepository: jasmine.createSpy().and.returnValue({
+                        find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                    })
+                };
                 connectionService = new ConnectionService(typeOrmWrapper);
             });
             it('saves user to database', () => {
@@ -64,86 +85,97 @@ describe('ConnectionService', () => {
                 expect(typeOrmWrapper.getManager().save).toHaveBeenCalledWith(user);
             });
             it('finds created user', () => {
-                connectionService.createUser(user);
-                expect(typeOrmWrapper.getRepository().find).toHaveBeenCalledWith({ username: user.username });
+                connectionService.createUser(user).then(() => {
+                    expect(typeOrmWrapper.getRepository(Users).find).toHaveBeenCalledWith({ username: user.username });
+                })
             });
-            it('returns the created user', () => {
+            it('returns the created user', (done) => {
                 connectionService.createUser(user).then((res) => {
+                    expect(res).toEqual([dbUser]);
+                    done();
+                });
+            });
+        });
+
+        describe('updating a username', () => {
+            beforeEach(() => {
+                typeOrmWrapper = {
+                    createConnection: jasmine.createSpy(),
+                    find: jasmine.createSpy().and.returnValue([dbUser]),
+                    getRepository: jasmine.createSpy().and.returnValue({
+                        createQueryBuilder: jasmine.createSpy().and.returnValue({
+                            update: jasmine.createSpy().and.returnValue({
+                                set: jasmine.createSpy().and.returnValue({
+                                    where: jasmine.createSpy().and.returnValue({
+                                        execute: jasmine.createSpy()
+                                    }),
+                                }),
+                            }),
+                        }),
+                        find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                    })
+                };
+                connectionService = new ConnectionService(typeOrmWrapper);
+            });
+            it('should call execute', () => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+                connectionService.updateUser('1234', { username: 'merp' }).then(() => {
+                    expect(typeOrmWrapper.getRepository().createQueryBuilder().update().set().where().execute)
+                        .toHaveBeenCalled();
+                });
+            });
+            it('should call find', () => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+                connectionService.updateUser('1234', { username: 'merp' }).then(() => {
+                    expect(typeOrmWrapper.getRepository().find).toHaveBeenCalledWith({ id: '1234' });
+                });
+            });
+            it('should return the correct values', () => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+                connectionService.updateUser('1234', { username: 'merp' }).then((res) => {
+                    expect(res).toEqual([dbUser]);
+                });
+            });
+        });
+        describe('deleting a user', () => {
+            beforeEach(() => {
+                typeOrmWrapper = {
+                    createConnection: jasmine.createSpy(),
+                    find: jasmine.createSpy().and.returnValue([dbUser]),
+                    getRepository: jasmine.createSpy().and.returnValue({
+                        createQueryBuilder: jasmine.createSpy().and.returnValue({
+                            delete: jasmine.createSpy().and.returnValue({
+                                from: jasmine.createSpy().and.returnValue({
+                                    where: jasmine.createSpy().and.returnValue({
+                                        execute: jasmine.createSpy()
+                                    }),
+                                }),
+                            }),
+                        }),
+                        find: jasmine.createSpy().and.returnValue(Promise.resolve([dbUser]))
+                    })
+                };
+                connectionService = new ConnectionService(typeOrmWrapper);
+            });
+            it('should call execute', () => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+                connectionService.deleteUser('1234').then(() => {
+                    expect(typeOrmWrapper.getRepository().createQueryBuilder().delete().from().where().execute)
+                        .toHaveBeenCalled();
+                });
+            });
+            it('should call find', () => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+                connectionService.deleteUser('1234').then(() => {
+                    expect(typeOrmWrapper.getRepository().find).toHaveBeenCalledWith({ id: '1234' });
+                });
+            });
+            it('should return the correct values', () => {
+                connectionService = new ConnectionService(typeOrmWrapper);
+                connectionService.deleteUser('1234').then((res) => {
                     expect(res).toEqual([dbUser]);
                 });
             });
         });
     });
 });
-
-// describe('updating a username', () => {
-//     const mockUser = new Users();
-//     beforeEach(() => {
-//         mockRepository = {
-//             find: jasmine.createSpy().and.returnValue([dbUser]),
-//             createQueryBuilder: jasmine.createSpy().and.returnValue({
-//                 update: jasmine.createSpy().and.returnValue({
-//                     set: jasmine.createSpy().and.returnValue({
-//                         where: jasmine.createSpy().and.returnValue({
-//                             execute: jasmine.createSpy()
-//                         }),
-//                     }),
-//                 }),
-//             }),
-//         };
-//         mockDb = {
-//             manager: jasmine.createSpyObj('manager', ['save']),
-//             getRepository: (...params) => {
-//                 return mockRepository;
-//             },
-//         };
-//         mockConnection = new MockConnection(mockDb);
-//         mockUser.username = user.username;
-//         mockUser.password = hash;
-//     });
-//     it('should call create query builder', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then(() => {
-//                 expect(mockRepository.createQueryBuilder).toHaveBeenCalled();
-//             });
-//     });
-//     it('should call update', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then(() => {
-//                 expect(mockRepository.createQueryBuilder().update).toHaveBeenCalledWith(Users);
-//             });
-//     });
-//     it('should call set', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then(() => {
-//                 expect(mockRepository.createQueryBuilder().update().set)
-//                     .toHaveBeenCalledWith({ username: 'merp' });
-//             });
-//     });
-//     it('should call where', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then(() => {
-//                 expect(mockRepository.createQueryBuilder().update().set().where)
-//                     .toHaveBeenCalledWith('id = :id', { id: '1234' });
-//             });
-//     });
-//     it('should call execute', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then(() => {
-//                 expect(mockRepository.createQueryBuilder().update().set().where().execute)
-//                     .toHaveBeenCalled();
-//             });
-//     });
-//     it('should call find', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then(() => {
-//                 expect(mockRepository.find).toHaveBeenCalledWith({id: '1234'});
-//             });
-//     });
-//     it('should return the correct value', () => {
-//         userService = new UserService(mockConnection, hashService),
-//             userService.update('1234', {username: 'merp'}).then((res) => {
-//                 expect(res).toEqual(dbUser);
-//             });
-//     });
-// });
