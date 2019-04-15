@@ -87,7 +87,7 @@ describe('ConnectionService', () => {
             it('finds created user', () => {
                 connectionService.createUser(user).then(() => {
                     expect(typeOrmWrapper.getRepository(Users).find).toHaveBeenCalledWith({ username: user.username });
-                })
+                });
             });
             it('returns the created user', (done) => {
                 connectionService.createUser(user).then((res) => {
